@@ -27,4 +27,5 @@ Volg de instructies op het scherm om door het programma te navigeren en de gewen
 
 **Auteurs:**
 
-Dit project is gemaakt door Thijs Brandes en Mitchel Tieges.
+- Thijs Brandes
+- Mitchel Tieges.
