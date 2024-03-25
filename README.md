@@ -28,4 +28,4 @@ Volg de instructies op het scherm om door het programma te navigeren en de gewen
 **Auteurs:**
 
 - Thijs Brandes
-- Mitchel Tieges.
+- Mitchel Tieges
