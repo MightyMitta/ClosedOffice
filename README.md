@@ -29,3 +29,4 @@ Volg de instructies op het scherm om door het programma te navigeren en de gewen
 
 - Thijs Brandes
 - Mitchel Tieges
+- Jeremy Kenton
