@@ -1,4 +1,6 @@
-﻿namespace ClosedOffice.Models;
+﻿using System.Text.RegularExpressions;
+
+namespace ClosedOffice.Models;
 public class TextFile
 {
     public string Name { get; set; }
@@ -15,9 +17,12 @@ public class TextFile
 
     public void Open()
     {
+        // Set the cursor to visible, clear the console and set the cursor to the top left
         Console.CursorVisible = true;
         Console.Clear();
+        Console.SetCursorPosition(0, 0);
 
+        // Try to read the file and store the lines in a list
         try
         {
             using StreamReader sr = new(Path);
@@ -33,46 +38,108 @@ public class TextFile
             return;
         }
 
-        //int curXPos = 0;
-        //int curYPos = 0;
-        int currentLine = 0;
+        // Save the current Y position of the cursor
+        (int Left, int Top) cursorPos = Console.GetCursorPosition();
+        int curLine = 0;
+        int currentVirtualLine = 0;
         int lastBufferLine = 0;
 
         while (true)
         {
-            PrintBuffer(currentLine, lines.Count);
-            ConsoleKeyInfo typedChar = Console.ReadKey();
-
-            // check if the key is a letter or a number
-            if (char.IsAscii(typedChar.KeyChar))
-            {
-                if (lines[currentLine].Length < Console.WindowWidth)
-                {
-                    lines[currentLine] += typedChar.KeyChar;
-                }
-                else
-                {
-                    lines[currentLine] = lines[currentLine][..^1] + typedChar.KeyChar;
-                }
-            }
+            lastBufferLine = Console.WindowHeight - 5;
+            PrintBuffer(curLine, lines.Count, cursorPos);
+            ConsoleKeyInfo typedChar = Console.ReadKey(true);
+            int curLineNumberLength = curLine.ToString().Length;
 
             switch (typedChar.Key)
             {
                 case ConsoleKey.UpArrow:
-                    if (currentLine != 0)
-                        currentLine--;
-                    break;
+                    if (cursorPos.Top > 0)
+                    {
+                        Console.SetCursorPosition(Console.GetCursorPosition().Left, cursorPos.Top--);
+                    } 
+                    else if (curLine != 0)
+                    {
+                        curLine--;
+                    }
+                    currentVirtualLine--;
+                    continue;
                 case ConsoleKey.DownArrow:
-                    if (currentLine < lines.Count - 1 && lastBufferLine! < lines.Count)
-                        currentLine++;
-                    break;
+                    if (cursorPos.Top + 1 < lastBufferLine)
+                    {
+                        Console.SetCursorPosition(Console.GetCursorPosition().Left, cursorPos.Top++);
+                    } 
+                    else if (curLine < lines.Count - 1 && (curLine + lastBufferLine) != lines.Count)
+                    {
+                        curLine++;
+                    }
+                    currentVirtualLine++;
+                    continue;
+                case ConsoleKey.LeftArrow:
+                    if (cursorPos.Left > 0 + curLineNumberLength)
+                    {
+                        Console.SetCursorPosition(cursorPos.Left--, Console.GetCursorPosition().Top);
+                    }
+                    continue;
+                case ConsoleKey.RightArrow:
+                    if (cursorPos.Left < lines[cursorPos.Top].Length + curLineNumberLength)
+                    {
+                        Console.SetCursorPosition(cursorPos.Left++, Console.GetCursorPosition().Top);
+                    }
+                    continue;
+                case ConsoleKey.Backspace:
+                    if (lines[currentVirtualLine].Length == 0)
+                    {
+                        lines.RemoveAt(currentVirtualLine);
+                        cursorPos.Top--;
+                        currentVirtualLine--;
+                        continue;
+                    }
+                    if (cursorPos.Left > curLineNumberLength + 1)
+                    {
+                        string curLineText = lines[currentVirtualLine];
+                        lines[currentVirtualLine] = curLineText.Remove(cursorPos.Left - 3, 1);
+                        Console.SetCursorPosition(cursorPos.Left--, cursorPos.Top);
+                    }
+                    continue;
+                case ConsoleKey.Enter:
+                    lines.Insert(cursorPos.Top + 1, "");
+                    cursorPos.Left = curLineNumberLength + 1;
+                    cursorPos.Top++;
+                    continue;
+                case ConsoleKey.Delete:
+                    if (cursorPos.Left < lines[cursorPos.Top].Length + curLineNumberLength)
+                    {
+                        string curLineText = lines[currentVirtualLine];
+                        lines[currentVirtualLine] = curLineText.Remove(cursorPos.Left - 2, 1);
+                    }
+                    continue;
                 case ConsoleKey.Escape:
                     return;
+            }
+
+            // check if the key is a letter or a number
+            // Regex match the the keychar with a letter, number or any symbol
+            Regex regex = new(@"[a-zA-Z0-9_\W]");
+            if (regex.IsMatch(typedChar.KeyChar.ToString()))
+            {
+                // Get the current line
+                string curLineValue = lines[cursorPos.Top];
+                // Insert the character at the current cursor position
+                try
+                {
+                    lines[cursorPos.Top] = curLineValue.Insert(cursorPos.Left - 2, typedChar.KeyChar.ToString());
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                }
+                // Move the cursor to the right
+                Console.SetCursorPosition(cursorPos.Left++, cursorPos.Top);
             }
         }
     }
 
-    private void PrintBuffer(int start, int totalLines)
+    private void PrintBuffer(int start, int totalLines, (int Left, int Top) cursorPos)
     {
         Console.Clear();
         Console.SetCursorPosition(0, 0);
@@ -91,8 +158,10 @@ public class TextFile
             {
                 Console.WriteLine($"{i + start + 1} {lines[i + start]}");
             }
-            //int lastBufferLine = i + start;
         }
+
+        // Move the cursor back to the original position
+        Console.SetCursorPosition(cursorPos.Left, cursorPos.Top);
     }
 
     public void Delete()

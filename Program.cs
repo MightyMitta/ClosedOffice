@@ -1,13 +1,9 @@
 ﻿using ClosedOffice.Models;
-using System.Security.Principal;
 
 while (true)
 {
     Console.CursorVisible = false;
     Console.Write("What would you like to do?");
-
-    OpenFile();
-    CreateFile();
 
     /*
      * create [bestandsnaam]: Maak een nieuw tekstbestand met de opgegeven bestandsnaam.
@@ -18,7 +14,12 @@ while (true)
      * close: Sluit het geopende tekstbestand en keer terug naar het hoofdmenu.
      * exit: Sluit de ClosedOffice-applicatie.)
      */
-    // TODO: Implement Menu (waiting for the Menu class to be implemented)
+    Menu menu = new(
+    [
+        new("Create file", CreateFile),
+        new("Open file", OpenFile),
+        new("Exit", () => Environment.Exit(0))
+    ]);
 }
 
 void OpenFile()
