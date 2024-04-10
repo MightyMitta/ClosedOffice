@@ -1,84 +1,44 @@
-﻿while (true)
-{
-    Console.Write("Enter command: ");
-    string command = Console.ReadLine();
+﻿using ClosedOffice.Models;
+using System.Security.Principal;
 
-    switch (command)
-    {
-        case "open-file":
-            Console.WriteLine("Enter file name:");
-            OpenFile(@"C:\Users\mitch\source\repos\ClosedOffice\Testfile.txt");
-            break;
-    }
-}
-
-void OpenFile(string fileName)
+while (true)
 {
     Console.CursorVisible = false;
+    Console.Write("What would you like to do?");
+
+    OpenFile();
+    CreateFile();
+
+    /*
+     * create [bestandsnaam]: Maak een nieuw tekstbestand met de opgegeven bestandsnaam.
+     * open [bestandsnaam]: Open een bestaand tekstbestand om te bewerken.
+     * save: Sla de wijzigingen op in het geopende bestand.
+     * saveas [nieuwe_bestandsnaam]: Sla het geopende bestand op onder een nieuwe naam.
+     * edit: Bewerk het geopende tekstbestand.
+     * close: Sluit het geopende tekstbestand en keer terug naar het hoofdmenu.
+     * exit: Sluit de ClosedOffice-applicatie.)
+     */
+    // TODO: Implement Menu (waiting for the Menu class to be implemented)
+}
+
+void OpenFile()
+{
     Console.Clear();
-    List<string> lines = [];
+    // Get the path of the file
+    Console.CursorVisible = true;
+    Console.WriteLine("Enter the path of the text file you would like to open:");
+    
+    string path = Console.ReadLine();
 
-    try
-    {
-        using StreamReader sr = new(fileName);
-        string line;
-        while ((line = sr.ReadLine()) != null)
-        {
-            lines.Add(line);
-        }
-    }
-    catch (Exception e)
-    {
-        Console.WriteLine("The file could not be read:");
-        Console.WriteLine(e.Message);
-        return;
-    }
+    // TODO: Replace with actual file path
+    TextFile textFile = new(@"./Testfile.txt");
+    textFile.Open();
+}
 
-    //int curXPos = 0;
-    //int curYPos = 0;
-    int currentLine = 0;
-    int lastBufferLine = 0;
-
-    while (true)
-    {
-        PrintBuffer(currentLine, lines.Count);
-        ConsoleKeyInfo typedChar = Console.ReadKey();
-
-        switch (typedChar.Key)
-        {
-            case ConsoleKey.UpArrow:
-                if (currentLine != 0)
-                    currentLine--;
-                break;
-            case ConsoleKey.DownArrow:
-                if (currentLine < lines.Count - 1 && lastBufferLine !< lines.Count)
-                    currentLine++;
-                break;
-            case ConsoleKey.Escape:
-                return;
-        }
-    }
-
-    void PrintBuffer(int start, int totalLines)
-    {
-        Console.Clear();
-        Console.SetCursorPosition(0,0);
-        for (int i = 0; i < Console.WindowHeight - 5; i++)
-        {
-            if (i + start >= totalLines)
-            {
-                return;
-            } 
-
-            if (lines[i + start].Length > Console.WindowWidth)
-            {
-                Console.WriteLine($"{i + start + 1} {lines[i + start][..Console.WindowWidth]}");
-            }
-            else
-            {
-                Console.WriteLine($"{i + start + 1} {lines[i + start]}");
-            }
-            lastBufferLine = i + start;
-        }
-    }
+void CreateFile()
+{
+    string currentDirectory = Environment.CurrentDirectory;
+    TextFile textFile = new(@$"{currentDirectory}/temp");
+    textFile.Create();
+    textFile.Open();
 }
