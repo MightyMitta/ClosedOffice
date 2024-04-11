@@ -27,19 +27,32 @@ void OpenFile()
     Console.Clear();
     // Get the path of the file
     Console.CursorVisible = true;
-    Console.WriteLine("Enter the path of the text file you would like to open:");
+    Console.Write("Enter the path of the text file you would like to open: ");
+    Console.ForegroundColor = ConsoleColor.Black;
+    Console.BackgroundColor = ConsoleColor.Gray;
+    Console.WriteLine("(Leave empty to use the TestFile)");
+    Console.ResetColor();
     
     string path = Console.ReadLine();
+    if (string.IsNullOrEmpty(path) || string.IsNullOrWhiteSpace(path))
+    {
+        path = "./Testfile.txt";
+    }
 
     // TODO: Replace with actual file path
-    TextFile textFile = new(@"./Testfile.txt");
+    TextFile textFile = new(path);
     textFile.Open();
 }
 
 void CreateFile()
 {
     string currentDirectory = Environment.CurrentDirectory;
-    TextFile textFile = new(@$"{currentDirectory}/temp");
+
+    if (!Directory.Exists(@$"{currentDirectory}/temp"))
+    {
+        Directory.CreateDirectory(@$"{currentDirectory}/temp");
+    }
+    TextFile textFile = new(@$"{currentDirectory}/temp/temp.txt");
     textFile.Create();
     textFile.Open();
 }

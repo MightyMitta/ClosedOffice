@@ -49,9 +49,8 @@ public class Menu
                 index = 0;
             }
         }
-        while (keyinfo.Key != ConsoleKey.X);
-
-        Console.ReadKey();
+        // TODO: Change this to a more appropriate condition
+        while (index != -1);
     }
 
     public void WriteMenu(Option selectedOption)
