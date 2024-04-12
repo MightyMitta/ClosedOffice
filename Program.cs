@@ -46,13 +46,23 @@ void OpenFile()
 
 void CreateFile()
 {
+    Console.Clear();
+    Console.CursorVisible = true;
     string currentDirectory = Environment.CurrentDirectory;
+    Console.Write("Enter filename: ");
+    string fileName = Console.ReadLine();
 
-    if (!Directory.Exists(@$"{currentDirectory}/temp"))
+    if (File.Exists(@$"{currentDirectory}/{fileName}.txt"))
     {
-        Directory.CreateDirectory(@$"{currentDirectory}/temp");
+        Console.WriteLine("File already exists.");
+        Console.ReadKey(true);
+        return;
     }
-    TextFile textFile = new(@$"{currentDirectory}/temp/temp.txt");
+
+    TextFile textFile = new(@$"{currentDirectory}/{fileName}.txt");
     textFile.Create();
-    textFile.Open();
+    Console.WriteLine($"File {fileName}.txt created in:");
+    Console.WriteLine($@"{currentDirectory}\{fileName}.txt");
+    Console.ReadKey(true);
+    Console.CursorVisible = false;
 }

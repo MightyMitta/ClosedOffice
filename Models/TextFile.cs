@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 namespace ClosedOffice.Models;
 public class TextFile
@@ -51,7 +51,18 @@ public class TextFile
             bufferHeight = Console.WindowHeight - 5;
             Console.Title = $"File: {Name} - Line: {currentFileLine + 1}";
             PrintBuffer(currentFileLine - currentBufferLine, bufferHeight, cursorPos);
-            ConsoleKeyInfo typedChar = Console.ReadKey(true);
+            ConsoleKeyInfo typedChar;
+            try
+            {
+                typedChar = Console.ReadKey(true);
+            }
+            catch (InvalidOperationException)
+            {
+                Console.WriteLine("This action is not allowed!");
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey(true);
+                continue;
+            }
 
             switch (typedChar.Key)
             {
@@ -66,6 +77,12 @@ public class TextFile
                         }
                         continue;
                     }
+                    // Move cursor to start of line if the next line is empty
+                    if (string.IsNullOrEmpty(lines[currentFileLine - 1]))
+                    {
+                        cursorPos.Left = 0;
+                    }
+                    // Move the cursor up by one line
                     currentBufferLine--;
                     cursorPos.Top--;
                     currentFileLine--;
@@ -82,6 +99,12 @@ public class TextFile
                         }
                         continue;
                     }
+                    // Move cursor to the end of line if the next line
+                    if (cursorPos.Left > lines[currentFileLine + 1].Length)
+                    {
+                        cursorPos.Left = lines[currentFileLine + 1].Length;
+                    }
+                    // Move the cursor down by one line
                     currentBufferLine++;
                     cursorPos.Top++;
                     currentFileLine++;
@@ -90,39 +113,67 @@ public class TextFile
                     // Check if the cursor is at the beginning of the line
                     if (cursorPos.Left == 0)
                     {
+                        // Check if the current line is the first line of the file
+                        if (currentFileLine == 0)
+                        {
+                            continue;
+                        }
+                        // Move the cursor to the end of the previous line
+                        cursorPos.Left = lines[currentFileLine - 1].Length;
+                        currentFileLine--;
+                        currentBufferLine--;
+                        cursorPos.Top--;
                         continue;
                     }
+                    // Move the cursor to the left by one
                     Console.SetCursorPosition(cursorPos.Left--, cursorPos.Top);
                     continue;
                 case ConsoleKey.RightArrow:
                     // Check if the cursor is at the end of the line
                     if (cursorPos.Left == lines[currentFileLine].Length)
                     {
+                        // Check if the current line is the last line of the file
+                        if (currentFileLine == lines.Count - 1)
+                        {
+                            continue;
+                        }
+                        // Move the cursor to the beginning of the next line
+                        cursorPos.Left = 0;
+                        currentFileLine++;
+                        currentBufferLine++;
+                        cursorPos.Top++;
                         continue;
                     }
+                    // Move the cursor to the right by one
                     Console.SetCursorPosition(cursorPos.Left++, cursorPos.Top);
                     continue;
                 case ConsoleKey.Backspace:
                     // Check if the cursor is at the beginning of the line
                     if (cursorPos.Left == 0)
                     {
+                        if (currentFileLine == 0)
+                        {
+                            continue;
+                        }
+                        // Check if the current line is empty
                         if (string.IsNullOrEmpty(lines[currentFileLine]))
                         {
                             lines.RemoveAt(currentFileLine);
+                        } 
+                        // Check if the previous line is empty
+                        else if (string.IsNullOrEmpty(lines[currentFileLine - 1]))
+                        {
+                            lines.RemoveAt(currentFileLine - 1);
                         }
                         else
                         {
-                            // Get the previous line
-                            string prevLineValue = lines[currentFileLine - 1];
-                            // Add the current line to the previous line
+                            // Merge the current line with the previous line
                             lines[currentFileLine - 1] += lines[currentFileLine];
-                            // Remove the current line
-                            lines.RemoveAt(currentFileLine);
-                            cursorPos.Left = prevLineValue.Length;
+                            cursorPos.Left = lines[currentFileLine - 1].Length;
                         }
+                        cursorPos.Top--;
                         currentFileLine--;
                         currentBufferLine--;
-                        cursorPos.Top--;
                         continue;
                     }
                     // Get the current line
@@ -136,6 +187,7 @@ public class TextFile
                     }
                     catch (ArgumentOutOfRangeException)
                     {
+                        // Showing the error message is not necessary and can be ignored
                     }
                     continue;
                 case ConsoleKey.Enter:
@@ -143,7 +195,6 @@ public class TextFile
                     if (cursorPos.Left == lines[currentFileLine].Length)
                     {
                         lines.Insert(currentFileLine + 1, "");
-                        
                     }
                     else
                     {
@@ -158,6 +209,7 @@ public class TextFile
                     currentBufferLine++;
                     cursorPos.Left = 0;
                     cursorPos.Top++;
+
                     continue;
                 case ConsoleKey.Delete:
                     // Check if the cursor is at the end of the line
@@ -174,13 +226,77 @@ public class TextFile
                     }
                     catch (ArgumentOutOfRangeException)
                     {
+                        // Showing the error message is not necessary and can be ignored
                     }
                     continue;
                 case ConsoleKey.Escape:
-                    
                     Save();
                     Console.WriteLine("File saved succesfully");
                     return;
+                case ConsoleKey.F1:
+                    Console.Clear();
+                    Console.Write("Enter word to search: ");
+                    string searchWord = Console.ReadLine();
+                    Console.WriteLine("Would you like to ignore casing in result? (y/N)");
+                    ConsoleKeyInfo ignoreCase = Console.ReadKey(true);
+                    bool ignoreCaseBool = ignoreCase.Key == ConsoleKey.Y;
+
+                    int wordCount = 0;
+                    foreach (string line in lines)
+                    {
+                        if (ignoreCaseBool)
+                        {
+                            wordCount += Regex.Matches(line, searchWord, RegexOptions.IgnoreCase).Count;
+                        }
+                        else
+                        {
+                            wordCount += Regex.Matches(line, searchWord).Count;
+                        }
+                    }
+
+                    Console.WriteLine($"Your word '{searchWord}' was found {wordCount} times");
+                    Console.WriteLine("Press any key to continue");
+                    Console.ReadKey();
+                    continue;
+                case ConsoleKey.F2:
+                    Console.Clear();
+                    Console.Write("Enter path of the file you would like to import: ");
+                    Console.ForegroundColor = ConsoleColor.Black;
+                    Console.BackgroundColor = ConsoleColor.Gray;
+                    Console.WriteLine("(Leave empty to use the TestImportFile)");
+                    Console.ResetColor();
+                    string importPath = Console.ReadLine();
+
+                    if (string.IsNullOrEmpty(importPath) || string.IsNullOrWhiteSpace(importPath))
+                    {
+
+                        importPath = Directory.GetCurrentDirectory() + "\\import.txt";
+                    }
+
+                    if (!File.Exists(importPath))
+                    {
+                        Console.WriteLine("File does not exist");
+                        Console.WriteLine("Press any key to continue");
+                        Console.ReadKey();
+                        continue;
+                    }
+
+                    string[] importedLines = File.ReadAllLines(importPath);
+                    lines.AddRange(importedLines);
+                    continue;
+                case ConsoleKey.F3:
+                    Console.Clear();
+                    int fileWordCount = 0;
+                    foreach (string line in lines)
+                    {
+                        // Get word count of the current line without counting empty lines and whitespaces
+                        fileWordCount += line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length;
+                    }
+
+                    Console.WriteLine($"Your file contains of {fileWordCount} words in a total of {lines.Count} lines.");
+                    Console.WriteLine("Press any key to continue");
+                    Console.ReadKey();
+                    continue;
             }
 
             // Regex match the the keychar with a letter, number or any symbol
@@ -200,7 +316,6 @@ public class TextFile
                 // Move the cursor to the right by one
                 Console.SetCursorPosition(cursorPos.Left++, cursorPos.Top);
             }
-
         }
     }
 
@@ -297,6 +412,29 @@ public class TextFile
         {
             Console.WriteLine("An error occurred while saving the file!");
         }
+    }
+
+    private void PrintBuffer(int startLine, int bufferHeight, (int Left, int Top) cursorPos)
+    {
+        Console.Clear();
+        Console.SetCursorPosition(0, 0);
+        for (int i = 0; i < bufferHeight; i++)
+        {
+
+            if (lines[i + startLine].Length > Console.WindowWidth)
+            {
+                //Console.WriteLine($"{i + startLine + 1} {lines[i + startLine][..Console.WindowWidth]}");
+                //Console.WriteLine($"{lines[i + startLine][..Console.WindowWidth]}");
+            }
+            else
+            {
+                //Console.WriteLine($"{i + startLine + 1} {lines[i + startLine]}");
+                Console.WriteLine($"{lines[i + startLine]}");
+            }
+        }
+
+        // Move the cursor back to the original 
+        Console.SetCursorPosition(cursorPos.Left, cursorPos.Top);
     }
 
     public void Delete()
