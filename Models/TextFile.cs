@@ -6,11 +6,10 @@ public class TextFile
     public string Name { get; set; }
     public string Path { get; set; }
     private List<string> lines = [];
-    private List<string> changedLines = [];
 
     public TextFile(string path)
     {
-        Console.CursorVisible = false;
+        Console.CursorVisible = true;
         Path = path;
         Name = System.IO.Path.GetFileName(path) ?? "file";
     }
@@ -18,7 +17,6 @@ public class TextFile
     public void Open()
     {
         // Set the cursor to visible, clear the console and set the cursor to the top left
-        Console.CursorVisible = true;
         Console.Clear();
         Console.SetCursorPosition(0, 0);
 
@@ -112,6 +110,19 @@ public class TextFile
                         {
                             lines.RemoveAt(currentFileLine);
                         }
+                        else
+                        {
+                            // Get the previous line
+                            string prevLineValue = lines[currentFileLine - 1];
+                            // Add the current line to the previous line
+                            lines[currentFileLine - 1] += lines[currentFileLine];
+                            // Remove the current line
+                            lines.RemoveAt(currentFileLine);
+                            cursorPos.Left = prevLineValue.Length;
+                        }
+                        currentFileLine--;
+                        currentBufferLine--;
+                        cursorPos.Top--;
                         continue;
                     }
                     // Get the current line
@@ -128,6 +139,25 @@ public class TextFile
                     }
                     continue;
                 case ConsoleKey.Enter:
+                    // Add new line after currentline
+                    if (cursorPos.Left == lines[currentFileLine].Length)
+                    {
+                        lines.Insert(currentFileLine + 1, "");
+                        
+                    }
+                    else
+                    {
+                        // Get the current line
+                        curLineValue = lines[currentFileLine];
+                        // Insert a new line after the current line
+                        lines.Insert(currentFileLine + 1, curLineValue[cursorPos.Left..]);
+                        // Remove the text after the cursor position
+                        lines[currentFileLine] = curLineValue.Remove(cursorPos.Left);
+                    }
+                    currentFileLine++;
+                    currentBufferLine++;
+                    cursorPos.Left = 0;
+                    cursorPos.Top++;
                     continue;
                 case ConsoleKey.Delete:
                     // Check if the cursor is at the end of the line
@@ -174,27 +204,40 @@ public class TextFile
         }
     }
 
+    private void PrintBuffer(int startLine, int bufferHeight, (int Left, int Top) cursorPos)
+    {
+        Console.Clear();
+        Console.SetCursorPosition(0, 0);
+        for (int i = 0; i < bufferHeight; i++)
+        {
+
+            if (lines[i + startLine].Length > Console.WindowWidth)
+            {
+                //Console.WriteLine($"{i + startLine + 1} {lines[i + startLine][..Console.WindowWidth]}");
+                Console.WriteLine($"{lines[i + startLine][..Console.WindowWidth]}");
+            }
+            else
+            {
+                //Console.WriteLine($"{i + startLine + 1} {lines[i + startLine]}");
+                Console.WriteLine($"{lines[i + startLine]}");
+            }
+        }
+
+        // Move the cursor back to the original position
+        Console.SetCursorPosition(cursorPos.Left, cursorPos.Top);
+    }
+
+
     public void Save()
     {
         Console.WriteLine("Would you like to overwrite or save as new file?");
 
-        Menu menu = new(new List<Option> 
-        { 
-            new("Overwrite", () =>
-            {
-                Overwrite();
-                return;
-            }), 
-            new("Save as new file", () =>
-            {
-                SaveAs();
-                return;
-            }),
-            new("Cancel", () =>
-            {
-                return;
-            })
-        });
+        Menu menu = new(
+        [
+            new("Overwrite", () => Overwrite()), 
+            new("Save as new file", () => SaveAs() ),
+            new("Cancel", () => { })
+        ]);
 
         Console.WriteLine("yessir");
     }
@@ -203,7 +246,7 @@ public class TextFile
     {
         try
         {
-            StreamWriter sw = new StreamWriter(Path);
+            StreamWriter sw = new(Path);
             File.WriteAllText(Path, string.Empty);
             foreach (var line in lines)
             {
@@ -254,29 +297,6 @@ public class TextFile
         {
             Console.WriteLine("An error occurred while saving the file!");
         }
-    }
-
-    private void PrintBuffer(int startLine, int bufferHeight, (int Left, int Top) cursorPos)
-    {
-        Console.Clear();
-        Console.SetCursorPosition(0, 0);
-        for (int i = 0; i < bufferHeight; i++)
-        {
-
-            if (lines[i + startLine].Length > Console.WindowWidth)
-            {
-                //Console.WriteLine($"{i + startLine + 1} {lines[i + startLine][..Console.WindowWidth]}");
-                //Console.WriteLine($"{lines[i + startLine][..Console.WindowWidth]}");
-            }
-            else
-            {
-                //Console.WriteLine($"{i + startLine + 1} {lines[i + startLine]}");
-                Console.WriteLine($"{lines[i + startLine]}");
-            }
-        }
-
-        // Move the cursor back to the original position
-        Console.SetCursorPosition(cursorPos.Left, cursorPos.Top);
     }
 
     public void Delete()
