@@ -168,8 +168,9 @@ public class TextFile
                         else
                         {
                             // Merge the current line with the previous line
-                            lines[currentFileLine - 1] += lines[currentFileLine];
                             cursorPos.Left = lines[currentFileLine - 1].Length;
+                            lines[currentFileLine - 1] += lines[currentFileLine];
+                            lines.RemoveAt(currentFileLine);
                         }
                         cursorPos.Top--;
                         currentFileLine--;
@@ -414,28 +415,29 @@ public class TextFile
         }
     }
 
-    private void PrintBuffer(int startLine, int bufferHeight, (int Left, int Top) cursorPos)
-    {
-        Console.Clear();
-        Console.SetCursorPosition(0, 0);
-        for (int i = 0; i < bufferHeight; i++)
-        {
+    //private void PrintBuffer(int startLine, int bufferHeight, (int Left, int Top) cursorPos)
+    //{
+    //    Console.Clear();
+    //    Console.SetCursorPosition(0, 0);
+    //    for (int i = 0; i < bufferHeight; i++)
+    //    {
 
-            if (lines[i + startLine].Length > Console.WindowWidth)
-            {
-                //Console.WriteLine($"{i + startLine + 1} {lines[i + startLine][..Console.WindowWidth]}");
-                //Console.WriteLine($"{lines[i + startLine][..Console.WindowWidth]}");
-            }
-            else
-            {
-                //Console.WriteLine($"{i + startLine + 1} {lines[i + startLine]}");
-                Console.WriteLine($"{lines[i + startLine]}");
-            }
-        }
+    //        if (lines[i + startLine].Length > Console.WindowWidth)
+    //        {
+    //            //Console.WriteLine($"{i + startLine + 1} {lines[i + startLine][..Console.WindowWidth]}");
+    //            //Console.WriteLine($"{lines[i + startLine][..Console.WindowWidth]}");
+    //        }
+    //        else
+    //        {
+    //            //Console.WriteLine($"{i + startLine + 1} {lines[i + startLine]}");
+    //            Console.WriteLine($"{lines[i + startLine]}");
+    //        }
+    //    }
 
-        // Move the cursor back to the original 
-        Console.SetCursorPosition(cursorPos.Left, cursorPos.Top);
-    }
+    //    // Move the cursor back to the original 
+    //    Console.SetCursorPosition(cursorPos.Left, cursorPos.Top);
+    //}
+
 
     public void Delete()
     {

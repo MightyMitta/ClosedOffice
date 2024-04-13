@@ -59,7 +59,7 @@ void CreateFile()
         return;
     }
 
-    TextFile textFile = new(@$"{currentDirectory}/{fileName}.txt");
+    TextFile textFile = new(@$"{currentDirectory}\{fileName}.txt");
     textFile.Create();
     Console.WriteLine($"File {fileName}.txt created in:");
     Console.WriteLine($@"{currentDirectory}\{fileName}.txt");
