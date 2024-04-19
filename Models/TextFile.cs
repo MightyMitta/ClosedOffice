@@ -159,15 +159,10 @@ public class TextFile
                         if (string.IsNullOrEmpty(lines[currentFileLine]))
                         {
                             lines.RemoveAt(currentFileLine);
-                        } 
-                        // Check if the previous line is empty
-                        else if (string.IsNullOrEmpty(lines[currentFileLine - 1]))
-                        {
-                            lines.RemoveAt(currentFileLine - 1);
                         }
+                        // Merge the current line with the previous line
                         else
                         {
-                            // Merge the current line with the previous line
                             cursorPos.Left = lines[currentFileLine - 1].Length;
                             lines[currentFileLine - 1] += lines[currentFileLine];
                             lines.RemoveAt(currentFileLine);
@@ -216,6 +211,14 @@ public class TextFile
                     // Check if the cursor is at the end of the line
                     if (cursorPos.Left == lines[currentFileLine].Length)
                     {
+                        // Check if the current line is the last line of the file
+                        if (currentFileLine == lines.Count - 1)
+                        {
+                            continue;
+                        }
+                        // Merge the current line with the next line
+                        lines[currentFileLine] += lines[currentFileLine + 1];
+                        lines.RemoveAt(currentFileLine + 1);
                         continue;
                     }
                     // Get the current line
@@ -306,6 +309,7 @@ public class TextFile
             {
                 // Get the current line
                 string curLineValue = lines[currentFileLine];
+
                 // Insert the character at the current cursor position
                 try
                 {
