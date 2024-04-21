@@ -243,14 +243,15 @@ public class TextFile
                     string searchWord = Console.ReadLine();
                     Console.WriteLine("Would you like to ignore casing in result? (y/N)");
                     ConsoleKeyInfo ignoreCase = Console.ReadKey(true);
-                    bool ignoreCaseBool = ignoreCase.Key == ConsoleKey.Y;
+                    bool doIgnoreCase = ignoreCase.Key == ConsoleKey.Y;
 
                     int wordCount = 0;
                     foreach (string line in lines)
                     {
-                        if (ignoreCaseBool)
+                        if (doIgnoreCase)
                         {
                             wordCount += Regex.Matches(line, searchWord, RegexOptions.IgnoreCase).Count;
+
                         }
                         else
                         {

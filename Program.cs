@@ -1,5 +1,63 @@
 ﻿using ClosedOffice.Models;
 
+string superSecretKey = "MitchelTieges";
+
+string textToEnrypt = "Hallo, mijn naam is Mitchel";
+
+Console.WriteLine("Original text: " + textToEnrypt);
+
+string encryptedText = Encrypt(textToEnrypt);
+Console.WriteLine("Encrypted text: " + encryptedText);
+
+
+string Encrypt(string text)
+{
+    string encryptedText = "";
+    int encryptChar = 0;
+
+    foreach (char character in text)
+    {
+        int newChar;
+
+        if (!char.IsLetter(character))
+        {
+            encryptedText += character;
+            continue;
+        }
+
+        if (char.IsUpper(character))
+        {
+            var x = character + (superSecretKey[encryptChar] - 65);
+
+            if (x > 90)
+            {
+                x -= 26;
+            }
+
+            newChar = x;
+        }
+        else
+        {
+            var x = character + (superSecretKey[encryptChar] - 97);
+
+            if (x > 122)
+            {
+                x -= 26;
+            }
+
+            newChar = x;
+        }
+
+        encryptedText += (char)newChar;
+
+        encryptChar = encryptChar == superSecretKey.Length ? 0 : encryptChar + 1;
+    }
+    return encryptedText;
+}
+
+Console.ReadLine();
+
+
 while (true)
 {
     Console.CursorVisible = false;
