@@ -1,63 +1,5 @@
 ﻿using ClosedOffice.Models;
 
-string superSecretKey = "MitchelTieges";
-
-string textToEnrypt = "Hallo, mijn naam is Mitchel";
-
-Console.WriteLine("Original text: " + textToEnrypt);
-
-string encryptedText = Encrypt(textToEnrypt);
-Console.WriteLine("Encrypted text: " + encryptedText);
-
-
-string Encrypt(string text)
-{
-    string encryptedText = "";
-    int encryptChar = 0;
-
-    foreach (char character in text)
-    {
-        int newChar;
-
-        if (!char.IsLetter(character))
-        {
-            encryptedText += character;
-            continue;
-        }
-
-        if (char.IsUpper(character))
-        {
-            var x = character + (superSecretKey[encryptChar] - 65);
-
-            if (x > 90)
-            {
-                x -= 26;
-            }
-
-            newChar = x;
-        }
-        else
-        {
-            var x = character + (superSecretKey[encryptChar] - 97);
-
-            if (x > 122)
-            {
-                x -= 26;
-            }
-
-            newChar = x;
-        }
-
-        encryptedText += (char)newChar;
-
-        encryptChar = encryptChar == superSecretKey.Length ? 0 : encryptChar + 1;
-    }
-    return encryptedText;
-}
-
-Console.ReadLine();
-
-
 while (true)
 {
     Console.CursorVisible = false;
@@ -106,21 +48,25 @@ void CreateFile()
 {
     Console.Clear();
     Console.CursorVisible = true;
-    string currentDirectory = Environment.CurrentDirectory;
+    string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);;
     Console.Write("Enter filename: ");
     string fileName = Console.ReadLine();
 
-    if (File.Exists(@$"{currentDirectory}/{fileName}.txt"))
+    if (File.Exists(@$"{docPath}/{fileName}.txt"))
     {
         Console.WriteLine("File already exists.");
+        Console.WriteLine("Press any key to return to the main menu.");
         Console.ReadKey(true);
         return;
     }
 
-    TextFile textFile = new(@$"{currentDirectory}\{fileName}.txt");
+    TextFile textFile = new(@$"{docPath}\{fileName}.txt");
     textFile.Create();
     Console.WriteLine($"File {fileName}.txt created in:");
-    Console.WriteLine($@"{currentDirectory}\{fileName}.txt");
+    Console.WriteLine($@"{docPath}\{fileName}.txt");
+    Console.WriteLine("Press any key to open the file.");
     Console.ReadKey(true);
     Console.CursorVisible = false;
+    textFile.Open();
+    
 }

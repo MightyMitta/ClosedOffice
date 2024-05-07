@@ -29,7 +29,6 @@ public class TextFile
             {
                 lines.Add(line);
             }
-            sr.Dispose();
         }
         catch (Exception e)
         {
@@ -235,7 +234,6 @@ public class TextFile
                     continue;
                 case ConsoleKey.Escape:
                     Save();
-                    Console.WriteLine("File saved succesfully");
                     return;
                 case ConsoleKey.F1:
                     Console.Clear();
@@ -357,26 +355,33 @@ public class TextFile
         [
             new("Overwrite", () => Overwrite()), 
             new("Save as new file", () => SaveAs() ),
-            new("Cancel", () => { })
+            new("Continue editing", () => Open() ),
+            new("Back to Main Menu", () => { Helper.ExitMenu = -1; })
         ]);
-
-        Console.WriteLine("yessir");
+        
     }
 
     private void Overwrite()
     {
         try
         {
-            StreamWriter sw = new(Path);
-            File.WriteAllText(Path, string.Empty);
-            foreach (var line in lines)
+            using (StreamWriter sw = new StreamWriter(Path))
             {
-                sw.WriteLine(line);
-            }
+                foreach (var line in lines)
+                {
+                    sw.WriteLine(line);
+                }
+            } 
+            Console.Clear();
+            Console.WriteLine("File saved successfully!");
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey(true);
+            Helper.ExitMenu = -1;
         }
         catch (Exception e)
         {
             Console.WriteLine("An error occurred: " + e.Message);
+            Helper.ExitMenu = 0;
             return;
         }
     }
@@ -388,7 +393,9 @@ public class TextFile
         {
             Console.Clear();
             Console.WriteLine("Enter the name of the file you would like to create:");
+            Console.CursorVisible = true;
             Name = Console.ReadLine();
+            Console.CursorVisible = false;
         }
         
         // Combine the current directory with the file name
@@ -412,7 +419,11 @@ public class TextFile
         // Check if the file was saved successfully
         if (File.Exists(Path))
         {
+            Console.Clear();
             Console.WriteLine("File saved successfully!");
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey(true);
+            Helper.ExitMenu = -1;
         }
         else
         {
