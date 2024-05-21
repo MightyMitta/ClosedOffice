@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace ClosedOffice.Models;
@@ -347,6 +348,8 @@ public class TextFile
         var contains = lines[i].Contains(lookUp, stringComparison);
         if (contains && !string.IsNullOrEmpty(lookUp))
         {
+            Console.BackgroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = ConsoleColor.Black;
             int index = 0;
             while ((index = lines[i].IndexOf(lookUp, index, stringComparison)) != -1)
             {
@@ -354,16 +357,14 @@ public class TextFile
                 // save the current cursor position
                 (int cursorLeft, int cursorTopBefore) = Console.GetCursorPosition();
                 Console.SetCursorPosition(index, cursorTop - 1);
-                Console.BackgroundColor = ConsoleColor.Yellow;
-                Console.ForegroundColor = ConsoleColor.Black;
                 Console.Write(lookUp);
-                Console.ResetColor();
 
                 // Move the cursor back to the original position
                 Console.SetCursorPosition(cursorLeft, cursorTopBefore);
 
                 index += lookUp.Length;
             }
+            Console.ResetColor();
         }
     }
 
@@ -413,16 +414,45 @@ public class TextFile
 
     public void SaveAs()
     {
-        Name = "";
-        while (string.IsNullOrEmpty(Name) && string.IsNullOrWhiteSpace(Name))
+        StringBuilder sb = new StringBuilder();
+    Console.Clear();
+    Console.WriteLine("Enter the name of the file you would like to create:");
+    Name = sb.ToString();
+    
+    while (true)
+    {
+        Console.CursorVisible = true;
+
+        ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+        // Check if user input is escape key or enter key
+        if (keyInfo.Key == ConsoleKey.Escape)
         {
-            Console.Clear();
-            Console.WriteLine("Enter the name of the file you would like to create:");
-            Console.CursorVisible = true;
-            Name = Console.ReadLine();
-            Console.CursorVisible = false;
+            Save();
+            break;
         }
-        
+        else if (keyInfo.Key == ConsoleKey.Enter)
+        {
+            if (!string.IsNullOrEmpty(Name) && !string.IsNullOrWhiteSpace(Name))
+            {
+                break;
+            }
+        }
+        else if (keyInfo.Key == ConsoleKey.Backspace)
+        {
+            if (sb.Length > 0)
+            {
+                sb.Remove(sb.Length - 1, 1);
+                Console.Write("\b \b");
+            }
+        }
+        else
+        {
+            sb.Append(keyInfo.KeyChar);
+            Console.Write(keyInfo.KeyChar); // Write the character to the console
+        }
+
+        Console.CursorVisible = false;
+    }
         // Combine the current directory with the file name
         Path = System.IO.Path.Combine(Environment.CurrentDirectory, Name + ".txt");
 

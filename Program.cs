@@ -1,4 +1,5 @@
-﻿using ClosedOffice.Models;
+﻿using System.Text;
+using ClosedOffice.Models;
 
 while (true)
 {
@@ -48,9 +49,41 @@ void CreateFile()
 {
     Console.Clear();
     Console.CursorVisible = true;
-    string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);;
-    Console.Write("Enter filename: ");
-    string fileName = Console.ReadLine();
+    string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+    Console.Write("Enter the name for your new txt file: ");
+    StringBuilder sb = new StringBuilder();
+    string fileName = "";
+    
+    while (true)
+    {
+        ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+        // Check if user input is escape key or enter key
+        if (keyInfo.Key == ConsoleKey.Escape)
+        {
+            return;
+        }
+        else if (keyInfo.Key == ConsoleKey.Enter)
+        {
+            fileName = sb.ToString();
+            if (!string.IsNullOrEmpty(fileName) && !string.IsNullOrWhiteSpace(fileName))
+            {
+                break;
+            }
+        }
+        else if (keyInfo.Key == ConsoleKey.Backspace)
+        {
+            if (sb.Length > 0)
+            {
+                sb.Remove(sb.Length - 1, 1);
+                Console.Write("\b \b");
+            }
+        }
+        else
+        {
+            sb.Append(keyInfo.KeyChar);
+            Console.Write(keyInfo.KeyChar); // Write the character to the console
+        }
+    }
 
     if (File.Exists(@$"{docPath}/{fileName}.txt"))
     {
@@ -68,5 +101,4 @@ void CreateFile()
     Console.ReadKey(true);
     Console.CursorVisible = false;
     textFile.Open();
-    
 }
