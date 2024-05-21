@@ -71,10 +71,10 @@ public class TextFile
             {
                 case ConsoleKey.UpArrow:
                     // Check if the current line is the first line of the buffer
-                    if (currentBufferLine <= 0)
+                    if (currentBufferLine == 0)
                     {
                         // Check if the current line is the first line of the file
-                        if (currentFileLine < 0)
+                        if (currentFileLine > 0)
                         {
                             currentFileLine--;
                         }
