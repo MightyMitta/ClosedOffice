@@ -21,7 +21,7 @@ public class TextFile
     {
         // Set the cursor to visible, clear the console and set the cursor to the top left
         Console.Clear();
-        Console.SetCursorPosition(0, 0);
+        Console.SetCursorPosition(0, 3);
         Console.CursorVisible = true;
 
         // Try to read the file and store the lines in a list
@@ -71,10 +71,10 @@ public class TextFile
             {
                 case ConsoleKey.UpArrow:
                     // Check if the current line is the first line of the buffer
-                    if (currentBufferLine == 0)
+                    if (currentBufferLine <= 0)
                     {
                         // Check if the current line is the first line of the file
-                        if (currentFileLine != 0)
+                        if (currentFileLine < 0)
                         {
                             currentFileLine--;
                         }
@@ -331,42 +331,51 @@ public class TextFile
     }
 
     private void PrintBuffer(int startLine, int bufferHeight, (int Left, int Top) cursorPos)
-    {
-    Console.Clear();
-    Console.SetCursorPosition(0, 0);
-    for (int i = startLine; i < startLine + bufferHeight && i < lines.Count; i++)
-    {
-        if (lines[i].Length > Console.WindowWidth)
+    { 
+        Console.Clear();
+        Console.SetCursorPosition(0, 0); 
+        
+        Console.ForegroundColor = ConsoleColor.Black;
+        Console.BackgroundColor = ConsoleColor.Gray;
+        Console.SetCursorPosition(0, 0);
+        Console.WriteLine("F1 = Search | F2 = Import | ESC = Save |");
+        Console.ResetColor();
+        
+        Console.SetCursorPosition(0, 3);
+        
+        for (int i = startLine; i < startLine + bufferHeight && i < lines.Count; i++)
         {
-            Console.WriteLine($"{lines[i][..Console.WindowWidth]}");
-        }
-        else
-        {
-            Console.WriteLine($"{lines[i]}");
-        }
-        var stringComparison = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-        var contains = lines[i].Contains(lookUp, stringComparison);
-        if (contains && !string.IsNullOrEmpty(lookUp))
-        {
-            Console.BackgroundColor = ConsoleColor.Yellow;
-            Console.ForegroundColor = ConsoleColor.Black;
-            int index = 0;
-            while ((index = lines[i].IndexOf(lookUp, index, stringComparison)) != -1)
+            if (lines[i].Length > Console.WindowWidth)
             {
-                var cursorTop = Console.CursorTop;
-                // save the current cursor position
-                (int cursorLeft, int cursorTopBefore) = Console.GetCursorPosition();
-                Console.SetCursorPosition(index, cursorTop - 1);
-                Console.Write(lookUp);
-
-                // Move the cursor back to the original position
-                Console.SetCursorPosition(cursorLeft, cursorTopBefore);
-
-                index += lookUp.Length;
+                Console.WriteLine($"{lines[i][..Console.WindowWidth]}");
             }
-            Console.ResetColor();
+            else
+            {
+                Console.WriteLine($"{lines[i]}");
+            } 
+            var stringComparison = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+            var contains = lines[i].Contains(lookUp, stringComparison);
+            if (contains && !string.IsNullOrEmpty(lookUp))
+            {
+                Console.BackgroundColor = ConsoleColor.Yellow;
+                Console.ForegroundColor = ConsoleColor.Black;
+                int index = 0;
+                while ((index = lines[i].IndexOf(lookUp, index, stringComparison)) != -1)
+                {
+                    var cursorTop = Console.CursorTop;
+                    // save the current cursor position
+                    (int cursorLeft, int cursorTopBefore) = Console.GetCursorPosition();
+                    Console.SetCursorPosition(index, cursorTop - 1);
+                    Console.Write(lookUp);
+    
+                    // Move the cursor back to the original position
+                    Console.SetCursorPosition(cursorLeft, cursorTopBefore);
+    
+                    index += lookUp.Length;
+                }
+                Console.ResetColor();
+            }
         }
-    }
 
     // Move the cursor back to the original position
     Console.SetCursorPosition(cursorPos.Left, cursorPos.Top);
