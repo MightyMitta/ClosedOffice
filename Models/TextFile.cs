@@ -6,7 +6,9 @@ public class TextFile
     public string Name { get; set; }
     public string Path { get; set; }
     private List<string> lines = [];
-
+    
+    private string lookUp = string.Empty;
+    private bool ignoreCase = false;
     public TextFile(string path)
     {
         Console.CursorVisible = true;
@@ -19,6 +21,7 @@ public class TextFile
         // Set the cursor to visible, clear the console and set the cursor to the top left
         Console.Clear();
         Console.SetCursorPosition(0, 0);
+        Console.CursorVisible = true;
 
         // Try to read the file and store the lines in a list
         try
@@ -235,13 +238,16 @@ public class TextFile
                 case ConsoleKey.Escape:
                     Save();
                     return;
+                
                 case ConsoleKey.F1:
                     Console.Clear();
                     Console.Write("Enter word to search: ");
                     string searchWord = Console.ReadLine();
+                    lookUp = searchWord;
                     Console.WriteLine("Would you like to ignore casing in result? (y/N)");
                     ConsoleKeyInfo ignoreCase = Console.ReadKey(true);
                     bool doIgnoreCase = ignoreCase.Key == ConsoleKey.Y;
+                    this.ignoreCase = doIgnoreCase;
 
                     int wordCount = 0;
                     foreach (string line in lines)
@@ -325,25 +331,44 @@ public class TextFile
 
     private void PrintBuffer(int startLine, int bufferHeight, (int Left, int Top) cursorPos)
     {
-        Console.Clear();
-        Console.SetCursorPosition(0, 0);
-        for (int i = 0; i < bufferHeight; i++)
+    Console.Clear();
+    Console.SetCursorPosition(0, 0);
+    for (int i = startLine; i < startLine + bufferHeight && i < lines.Count; i++)
+    {
+        if (lines[i].Length > Console.WindowWidth)
         {
+            Console.WriteLine($"{lines[i][..Console.WindowWidth]}");
+        }
+        else
+        {
+            Console.WriteLine($"{lines[i]}");
+        }
+        var stringComparison = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+        var contains = lines[i].Contains(lookUp, stringComparison);
+        if (contains && !string.IsNullOrEmpty(lookUp))
+        {
+            int index = 0;
+            while ((index = lines[i].IndexOf(lookUp, index, stringComparison)) != -1)
+            {
+                var cursorTop = Console.CursorTop;
+                // save the current cursor position
+                (int cursorLeft, int cursorTopBefore) = Console.GetCursorPosition();
+                Console.SetCursorPosition(index, cursorTop - 1);
+                Console.BackgroundColor = ConsoleColor.Yellow;
+                Console.ForegroundColor = ConsoleColor.Black;
+                Console.Write(lookUp);
+                Console.ResetColor();
 
-            if (lines[i + startLine].Length > Console.WindowWidth)
-            {
-                //Console.WriteLine($"{i + startLine + 1} {lines[i + startLine][..Console.WindowWidth]}");
-                Console.WriteLine($"{lines[i + startLine][..Console.WindowWidth]}");
-            }
-            else
-            {
-                //Console.WriteLine($"{i + startLine + 1} {lines[i + startLine]}");
-                Console.WriteLine($"{lines[i + startLine]}");
+                // Move the cursor back to the original position
+                Console.SetCursorPosition(cursorLeft, cursorTopBefore);
+
+                index += lookUp.Length;
             }
         }
+    }
 
-        // Move the cursor back to the original position
-        Console.SetCursorPosition(cursorPos.Left, cursorPos.Top);
+    // Move the cursor back to the original position
+    Console.SetCursorPosition(cursorPos.Left, cursorPos.Top);
     }
 
 
