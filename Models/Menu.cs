@@ -54,10 +54,19 @@ public class Menu
 
     public void WriteMenu(Option selectedOption)
     {
-        Console.Clear();
+        int startRow = Console.WindowHeight - options.Count - 4;
+
+        for (int i = 0; i < options.Count + 2; i++)
+        {
+            Console.SetCursorPosition(0, startRow + i);
+            Console.Write(new string(' ', Console.WindowWidth));
+        }
+
+        Console.SetCursorPosition(0, startRow);
+        Console.WriteLine(new string('-', Console.WindowWidth));
         Console.ForegroundColor = ConsoleColor.Black;
         Console.BackgroundColor = ConsoleColor.Gray;
-        Console.WriteLine("Navigate options using arrow up/down, select option by pressing Enter");
+        Console.WriteLine("Navigate options using arrow up/down, select option by pressing Enter                                                   ");
         Console.ForegroundColor = ConsoleColor.Gray;
         Console.BackgroundColor = ConsoleColor.Black;
 
@@ -74,5 +83,6 @@ public class Menu
 
             Console.WriteLine(option.Name);
         }
+        Console.WriteLine(new string('-', Console.WindowWidth));
     }
 }

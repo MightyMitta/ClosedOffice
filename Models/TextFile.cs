@@ -51,7 +51,7 @@ public class TextFile
 
         while (true)
         {
-            bufferHeight = Console.WindowHeight - 5;
+            bufferHeight = Console.WindowHeight - 7;
             Console.Title = $"File: {Name} - Line: {currentFileLine + 1}";
             PrintBuffer(currentFileLine - currentBufferLine, bufferHeight, cursorPos);
             ConsoleKeyInfo typedChar;
@@ -77,6 +77,8 @@ public class TextFile
                         if (currentFileLine > 0)
                         {
                             currentFileLine--;
+                            Console.Clear();
+                            PrintBuffer(currentFileLine - currentBufferLine, bufferHeight, cursorPos);
                         }
                         continue;
                     }
@@ -89,8 +91,8 @@ public class TextFile
                     currentBufferLine--;
                     cursorPos.Top--;
                     currentFileLine--;
-
                     continue;
+                
                 case ConsoleKey.DownArrow:
                     // Check if the current line is the last line of the buffer
                     if (currentBufferLine == bufferHeight - 1)
@@ -99,6 +101,9 @@ public class TextFile
                         if (currentFileLine != lines.Count - 1)
                         {
                             currentFileLine++;
+                            // Update the console buffer
+                            Console.Clear();
+                            PrintBuffer(currentFileLine - currentBufferLine, bufferHeight, cursorPos);
                         }
                         continue;
                     }
@@ -112,6 +117,7 @@ public class TextFile
                     cursorPos.Top++;
                     currentFileLine++;
                     continue;
+                
                 case ConsoleKey.LeftArrow:
                     // Check if the cursor is at the beginning of the line
                     if (cursorPos.Left == 0)
@@ -241,40 +247,36 @@ public class TextFile
                     return;
                 
                 case ConsoleKey.F1:
-                    Console.Clear();
+                    OpenFile();
+                    return;
+                
+                case ConsoleKey.F2:
+                    Console.SetCursorPosition(left: 0 , top: Console.WindowHeight - 3);
                     Console.Write("Enter word to search: ");
                     string searchWord = Console.ReadLine();
                     lookUp = searchWord;
-                    Console.WriteLine("Would you like to ignore casing in result? (y/N)");
-                    ConsoleKeyInfo ignoreCase = Console.ReadKey(true);
-                    bool doIgnoreCase = ignoreCase.Key == ConsoleKey.Y;
-                    this.ignoreCase = doIgnoreCase;
-
+                
                     int wordCount = 0;
                     foreach (string line in lines)
                     {
-                        if (doIgnoreCase)
-                        {
-                            wordCount += Regex.Matches(line, searchWord, RegexOptions.IgnoreCase).Count;
-
-                        }
-                        else
-                        {
-                            wordCount += Regex.Matches(line, searchWord).Count;
-                        }
+                        //wordCount += Regex.Matches(line, searchWord, RegexOptions.IgnoreCase).Count;
+                        // ingore casing when searching for the word
+                        wordCount += line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Count(x => x.Equals(searchWord, StringComparison.OrdinalIgnoreCase));
                     }
-
-                    Console.WriteLine($"Your word '{searchWord}' was found {wordCount} times");
-                    Console.WriteLine("Press any key to continue");
+                    
+                    Console.SetCursorPosition(left: 0 , top: Console.WindowHeight - 3);
+                    Console.Write($"Your word '{searchWord}' was found {wordCount} times, press any key to continue...");
                     Console.ReadKey();
                     continue;
-                case ConsoleKey.F2:
-                    Console.Clear();
-                    Console.Write("Enter path of the file you would like to import: ");
+                
+                case ConsoleKey.F3:
+                    Console.SetCursorPosition(left: 0 , top: Console.WindowHeight - 3);
+                    Console.Write("Enter path of import file ");
                     Console.ForegroundColor = ConsoleColor.Black;
                     Console.BackgroundColor = ConsoleColor.Gray;
-                    Console.WriteLine("(Leave empty to use the TestImportFile)");
+                    Console.Write("(Leave empty to use the TestImportFile)");
                     Console.ResetColor();
+                    Console.Write(": ");
                     string importPath = Console.ReadLine();
 
                     if (string.IsNullOrEmpty(importPath) || string.IsNullOrWhiteSpace(importPath))
@@ -293,19 +295,6 @@ public class TextFile
 
                     string[] importedLines = File.ReadAllLines(importPath);
                     lines.AddRange(importedLines);
-                    continue;
-                case ConsoleKey.F3:
-                    Console.Clear();
-                    int fileWordCount = 0;
-                    foreach (string line in lines)
-                    {
-                        // Get word count of the current line without counting empty lines and whitespaces
-                        fileWordCount += line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length;
-                    }
-
-                    Console.WriteLine($"Your file contains of {fileWordCount} words in a total of {lines.Count} lines.");
-                    Console.WriteLine("Press any key to continue");
-                    Console.ReadKey();
                     continue;
             }
 
@@ -332,15 +321,41 @@ public class TextFile
 
     private void PrintBuffer(int startLine, int bufferHeight, (int Left, int Top) cursorPos)
     { 
+        Console.SetCursorPosition(0, 0);
         Console.Clear();
-        Console.SetCursorPosition(0, 0); 
-        
+
+        // Print the top border of the header
+        Console.Write(new string('-', Console.WindowWidth)); //problem
+
+        // Display the header with hotkey information
         Console.ForegroundColor = ConsoleColor.Black;
         Console.BackgroundColor = ConsoleColor.Gray;
-        Console.SetCursorPosition(0, 0);
-        Console.WriteLine("F1 = Search | F2 = Import | ESC = Save |");
+        Console.SetCursorPosition(0, 1);
+        Console.WriteLine("F1 = Open file | F2 = Search | F3 = Import | ESC = Save |");
+
+        // Print the bottom border of the header
         Console.ResetColor();
+        Console.WriteLine(new string('-', Console.WindowWidth));
+
+        // Display the footer with a command input area
+        Console.SetCursorPosition(0, Console.WindowHeight - 3);
+        Console.WriteLine(new string('-', Console.WindowWidth));
+        Console.SetCursorPosition(0, Console.WindowHeight - 2);
+        int fileWordCount = 0;
+        foreach (string line in lines)
+        {
+            // Get word count of the current line without counting empty lines and whitespaces
+            fileWordCount += line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length;
+        }
         
+        Console.Write($"{fileWordCount} words in a total of {lines.Count} lines.");
+
+        // Print the bottom border
+        Console.SetCursorPosition(0, Console.WindowHeight - 1);
+        Console.WriteLine(new string('-', Console.WindowWidth));
+
+        Console.ResetColor();
+
         Console.SetCursorPosition(0, 3);
         
         for (int i = startLine; i < startLine + bufferHeight && i < lines.Count; i++)
@@ -353,7 +368,7 @@ public class TextFile
             {
                 Console.WriteLine($"{lines[i]}");
             } 
-            var stringComparison = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+            var stringComparison = StringComparison.OrdinalIgnoreCase;
             var contains = lines[i].Contains(lookUp, stringComparison);
             if (contains && !string.IsNullOrEmpty(lookUp))
             {
@@ -384,14 +399,14 @@ public class TextFile
 
     public void Save()
     {
+        Console.SetCursorPosition(left: 0 , top: Console.WindowHeight - 3);
         Console.WriteLine("Would you like to overwrite or save as new file?");
 
         Menu menu = new(
         [
             new("Overwrite", () => Overwrite()), 
             new("Save as new file", () => SaveAs() ),
-            new("Continue editing", () => Open() ),
-            new("Back to Main Menu", () => { Helper.ExitMenu = -1; })
+            new("Continue editing", () => Open() )
         ]);
         
     }
@@ -503,6 +518,39 @@ public class TextFile
 
     public void Create()
     {
-        File.Create(Path);
+        using (FileStream fs = File.Create(Path))
+        {
+            // File created
+        }
     }
+    
+    void OpenFile()
+    {
+        // Clear the console and set the cursor to the footer
+        Console.SetCursorPosition(0, Console.WindowHeight - 3);
+
+        // Get the path of the file
+        Console.CursorVisible = true;
+        Console.Write("Enter the path ");
+        Console.ForegroundColor = ConsoleColor.Black;
+        Console.BackgroundColor = ConsoleColor.Gray;
+        Console.Write("(Leave empty to use the TestFile)");
+        Console.ResetColor();
+        Console.Write(": ");
+
+        string path = Console.ReadLine();
+        if (string.IsNullOrEmpty(path) || string.IsNullOrWhiteSpace(path))
+        {
+            path = "./Testfile.txt";
+        }
+
+        // TODO: Replace with actual file path
+        TextFile textFile = new(path);
+        textFile.Open();
+        
+        // Clear the console and reset the cursor position after the file is opened
+        Console.Clear();
+        Console.SetCursorPosition(0, 0);
+    }
+    
 }
