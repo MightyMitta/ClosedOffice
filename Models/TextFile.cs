@@ -429,9 +429,18 @@ public class TextFile
                     sw.WriteLine(line);
                 }
             } 
-            Console.Clear();
-            Console.WriteLine("File saved successfully!");
-            Console.WriteLine("Press any key to continue...");
+            //clear the menu
+            Console.SetCursorPosition(0, Console.WindowHeight - 7);
+            Console.WriteLine(new string(' ', Console.WindowWidth));
+            Console.SetCursorPosition(0, Console.WindowHeight - 6);
+            Console.WriteLine(new string(' ', Console.WindowWidth));
+            Console.SetCursorPosition(0, Console.WindowHeight - 5);
+            Console.WriteLine(new string(' ', Console.WindowWidth));
+            Console.SetCursorPosition(0, Console.WindowHeight - 4);
+            Console.WriteLine(new string('-', Console.WindowWidth));
+            Console.SetCursorPosition(0, Console.WindowHeight - 3);
+            
+            Console.WriteLine("File saved successfully!                                                                    Press any key to continue...");
             Console.ReadKey(true);
             Helper.ExitMenu = -1;
         }
@@ -522,19 +531,17 @@ public class TextFile
         Name = "";
         while (string.IsNullOrEmpty(Name) && string.IsNullOrWhiteSpace(Name))
         {
-            Console.SetCursorPosition(0, Console.WindowHeight - 7); // was 3
+            //clear the menu
+            Console.SetCursorPosition(0, Console.WindowHeight - 7);
             Console.WriteLine(new string(' ', Console.WindowWidth));
-
-            Console.SetCursorPosition(0, Console.WindowHeight - 6); // was 3
+            Console.SetCursorPosition(0, Console.WindowHeight - 6);
             Console.WriteLine(new string(' ', Console.WindowWidth));
-
-            Console.SetCursorPosition(0, Console.WindowHeight - 5); // was 3
+            Console.SetCursorPosition(0, Console.WindowHeight - 5);
             Console.WriteLine(new string(' ', Console.WindowWidth));
-
-
-            Console.SetCursorPosition(0, Console.WindowHeight - 4); // was 3
+            Console.SetCursorPosition(0, Console.WindowHeight - 4);
             Console.WriteLine(new string('-', Console.WindowWidth));
-            Console.SetCursorPosition(0, Console.WindowHeight - 3); // was 3
+            Console.SetCursorPosition(0, Console.WindowHeight - 3);
+            
             Console.Write("Enter the name of the file you would like to create:");
             Console.CursorVisible = true;
             Name = Console.ReadLine();
