@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 namespace ClosedOffice.Models;
 public class TextFile
 {
+    private static char test = '-';
     public string Name { get; set; }
     public string Path { get; set; }
     private List<string> lines = [];
@@ -51,6 +52,7 @@ public class TextFile
 
         while (true)
         {
+            Console.Clear();
             bufferHeight = Console.WindowHeight - 7;
             Console.Title = $"File: {Name} - Line: {currentFileLine + 1}";
             PrintBuffer(currentFileLine - currentBufferLine, bufferHeight, cursorPos);
@@ -266,7 +268,7 @@ public class TextFile
                     
                     Console.SetCursorPosition(left: 0 , top: Console.WindowHeight - 3);
                     Console.Write($"Your word '{searchWord}' was found {wordCount} times, press any key to continue...");
-                    Console.ReadKey();
+                    Console.ReadKey(true);
                     continue;
                 
                 case ConsoleKey.F3:
@@ -289,7 +291,7 @@ public class TextFile
                     {
                         Console.WriteLine("File does not exist");
                         Console.WriteLine("Press any key to continue");
-                        Console.ReadKey();
+                        Console.ReadKey(true);
                         continue;
                     }
 
@@ -320,27 +322,25 @@ public class TextFile
     }
 
     private void PrintBuffer(int startLine, int bufferHeight, (int Left, int Top) cursorPos)
-    { 
+    {
         Console.SetCursorPosition(0, 0);
-        Console.Clear();
 
         // Print the top border of the header
-        Console.Write(new string('-', Console.WindowWidth)); //problem
+        Console.WriteLine(new string('-', Console.WindowWidth)); //problem
 
         // Display the header with hotkey information
         Console.ForegroundColor = ConsoleColor.Black;
         Console.BackgroundColor = ConsoleColor.Gray;
-        Console.SetCursorPosition(0, 1);
-        Console.WriteLine("F1 = Open file | F2 = Search | F3 = Import | ESC = Save |");
+        Console.WriteLine("F1 Open file | F2 Search | F3 Import | ESC Save");
 
         // Print the bottom border of the header
         Console.ResetColor();
         Console.WriteLine(new string('-', Console.WindowWidth));
 
         // Display the footer with a command input area
-        Console.SetCursorPosition(0, Console.WindowHeight - 3);
+        Console.SetCursorPosition(0, Console.WindowHeight - 4); // was 3
         Console.WriteLine(new string('-', Console.WindowWidth));
-        Console.SetCursorPosition(0, Console.WindowHeight - 2);
+        //Console.SetCursorPosition(0, Console.WindowHeight - 2);
         int fileWordCount = 0;
         foreach (string line in lines)
         {
@@ -348,10 +348,10 @@ public class TextFile
             fileWordCount += line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length;
         }
         
-        Console.Write($"{fileWordCount} words in a total of {lines.Count} lines.");
+        Console.WriteLine($"{fileWordCount} words in a total of {lines.Count} lines.");
 
         // Print the bottom border
-        Console.SetCursorPosition(0, Console.WindowHeight - 1);
+        //Console.SetCursorPosition(0, Console.WindowHeight - 1);
         Console.WriteLine(new string('-', Console.WindowWidth));
 
         Console.ResetColor();
