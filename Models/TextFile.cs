@@ -97,9 +97,9 @@ public class TextFile
                         // Merge the current line with the previous line
                         else
                         {
-                            CursorPosLeft = Lines[CurrentFileLine - 1].Length;
                             RemoveLine(CurrentFileLine - 1);
                         }
+                        CursorPosLeft = Lines[CurrentFileLine - 1].Length;
                         CursorUp();
                         continue;
                     }
