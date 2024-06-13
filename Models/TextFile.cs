@@ -404,15 +404,20 @@ public class TextFile
         Console.SetCursorPosition(left: 0 , top: Console.WindowHeight - 3);
         Console.WriteLine("Would you like to overwrite or save as new file?");
 
-        Menu menu = new(
-        [
-            new("Overwrite", () => Overwrite()), 
+        List<Option> options = new List<Option>
+        {
             new("Save as new file", () => SaveAs() ),
             new("Continue editing", () => Open() )
-        ]);
-        
-    }
+        };
 
+        // Add the Overwrite option only if the file is not a .tmp file
+        if (!Path.EndsWith(".tmp"))
+        {
+            options.Insert(0, new Option("Overwrite", () => Overwrite()));
+        }
+
+        Menu menu = new(options);
+    }
     private void Overwrite()
     {
         try
@@ -438,47 +443,105 @@ public class TextFile
         }
     }
 
+    // public void SaveAs()
+    // {
+    //     StringBuilder sb = new StringBuilder();
+    // Console.SetCursorPosition(0, Console.WindowHeight - 3);
+    // Console.WriteLine("Enter the name of the file you would like to create:");
+    // Name = sb.ToString();
+    //
+    // while (true)
+    // {
+    //     Console.CursorVisible = true;
+    //
+    //     ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+    //     // Check if user input is escape key or enter key
+    //     if (keyInfo.Key == ConsoleKey.Escape)
+    //     {
+    //         Save();
+    //         break;
+    //     }
+    //     else if (keyInfo.Key == ConsoleKey.Enter)
+    //     {
+    //         if (!string.IsNullOrEmpty(Name) && !string.IsNullOrWhiteSpace(Name))
+    //         {
+    //             break;
+    //         }
+    //     }
+    //     else if (keyInfo.Key == ConsoleKey.Backspace)
+    //     {
+    //         if (sb.Length > 0)
+    //         {
+    //             sb.Remove(sb.Length - 1, 1);
+    //             Console.Write("\b \b");
+    //         }
+    //     }
+    //     else
+    //     {
+    //         sb.Append(keyInfo.KeyChar);
+    //         Console.Write(keyInfo.KeyChar); // Write the character to the console
+    //     }
+    //
+    //     Console.CursorVisible = false;
+    // }
+    //     // Combine the current directory with the file name
+    //     Path = System.IO.Path.Combine(Environment.CurrentDirectory, Name + ".txt");
+    //
+    //     // Try to save the file
+    //     try
+    //     {
+    //         using StreamWriter sw = new(Path);
+    //         foreach (var line in lines)
+    //         {
+    //             sw.WriteLine(line);
+    //         }
+    //     }
+    //     catch
+    //     {
+    //         Console.WriteLine("An error occurred while saving the file!");
+    //         return;
+    //     }
+    //
+    //     // Check if the file was saved successfully
+    //     if (File.Exists(Path))
+    //     {
+    //         Console.Clear();
+    //         Console.WriteLine("File saved successfully!");
+    //         Console.WriteLine("Press any key to continue...");
+    //         Console.ReadKey(true);
+    //         Helper.ExitMenu = -1;
+    //     }
+    //     else
+    //     {
+    //         Console.WriteLine("An error occurred while saving the file!");
+    //     }
+    // }
+
     public void SaveAs()
     {
-        StringBuilder sb = new StringBuilder();
-    Console.Clear();
-    Console.WriteLine("Enter the name of the file you would like to create:");
-    Name = sb.ToString();
-    
-    while (true)
-    {
-        Console.CursorVisible = true;
+        Name = "";
+        while (string.IsNullOrEmpty(Name) && string.IsNullOrWhiteSpace(Name))
+        {
+            Console.SetCursorPosition(0, Console.WindowHeight - 7); // was 3
+            Console.WriteLine(new string(' ', Console.WindowWidth));
 
-        ConsoleKeyInfo keyInfo = Console.ReadKey(true);
-        // Check if user input is escape key or enter key
-        if (keyInfo.Key == ConsoleKey.Escape)
-        {
-            Save();
-            break;
-        }
-        else if (keyInfo.Key == ConsoleKey.Enter)
-        {
-            if (!string.IsNullOrEmpty(Name) && !string.IsNullOrWhiteSpace(Name))
-            {
-                break;
-            }
-        }
-        else if (keyInfo.Key == ConsoleKey.Backspace)
-        {
-            if (sb.Length > 0)
-            {
-                sb.Remove(sb.Length - 1, 1);
-                Console.Write("\b \b");
-            }
-        }
-        else
-        {
-            sb.Append(keyInfo.KeyChar);
-            Console.Write(keyInfo.KeyChar); // Write the character to the console
-        }
+            Console.SetCursorPosition(0, Console.WindowHeight - 6); // was 3
+            Console.WriteLine(new string(' ', Console.WindowWidth));
 
-        Console.CursorVisible = false;
-    }
+            Console.SetCursorPosition(0, Console.WindowHeight - 5); // was 3
+            Console.WriteLine(new string(' ', Console.WindowWidth));
+
+
+            Console.SetCursorPosition(0, Console.WindowHeight - 4); // was 3
+            Console.WriteLine(new string('-', Console.WindowWidth));
+            Console.SetCursorPosition(0, Console.WindowHeight - 3); // was 3
+            Console.Write("Enter the name of the file you would like to create:");
+            Console.CursorVisible = true;
+            Name = Console.ReadLine();
+            Console.CursorVisible = false;
+            Console.WriteLine(new string('-', Console.WindowWidth));
+        }
+        
         // Combine the current directory with the file name
         Path = System.IO.Path.Combine(Environment.CurrentDirectory, Name + ".txt");
 
@@ -511,7 +574,6 @@ public class TextFile
             Console.WriteLine("An error occurred while saving the file!");
         }
     }
-
 
     public void Delete()
     {

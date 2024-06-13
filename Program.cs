@@ -1,11 +1,16 @@
 ﻿using System.Text;
 using ClosedOffice.Models;
 
+// Create a temporary text file and open it
+string tempFilePath = Path.GetTempFileName();
+File.WriteAllText(tempFilePath, " ");
+
+Console.WriteLine($"Temporary file created at: {tempFilePath}");
+
 while (true)
 {
-    // Create a new text file and open it
-    TextFile textFile = new("./empty.txt");
-    textFile.Create();
+    // Use the temporary file instead of "./empty.txt"
+    TextFile textFile = new(tempFilePath);
     textFile.Open();
 }
 
