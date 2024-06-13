@@ -254,10 +254,12 @@ public class TextFile
                 
                 case ConsoleKey.F2:
                     Console.SetCursorPosition(left: 0 , top: Console.WindowHeight - 3);
+                    Console.Write(new string(' ', Console.WindowWidth));
+                    Console.SetCursorPosition(left: 0 , top: Console.WindowHeight - 3);
                     Console.Write("Enter word to search: ");
                     string searchWord = Console.ReadLine();
                     lookUp = searchWord;
-                
+
                     int wordCount = 0;
                     foreach (string line in lines)
                     {
@@ -265,7 +267,7 @@ public class TextFile
                         // ingore casing when searching for the word
                         wordCount += line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Count(x => x.Equals(searchWord, StringComparison.OrdinalIgnoreCase));
                     }
-                    
+
                     Console.SetCursorPosition(left: 0 , top: Console.WindowHeight - 3);
                     Console.Write($"Your word '{searchWord}' was found {wordCount} times, press any key to continue...");
                     Console.ReadKey(true);
