@@ -69,6 +69,11 @@ public class TextFile
         Path = path;
         Name = System.IO.Path.GetFileName(path) ?? "file";
     }
+    
+    public bool IsTextExceedingWindowWidth(string text)
+    {
+        return text.Length >= Console.WindowWidth;
+    }
 
     public void Open()
     {
@@ -311,8 +316,49 @@ public class TextFile
                 catch (ArgumentOutOfRangeException)
                 {
                 }
-                // Move the cursor to the right by one
-                Console.SetCursorPosition(CursorPosLeft++, CursorPosTop);
+                
+                if (IsTextExceedingWindowWidth(Lines[CurrentFileLine]))
+                {
+                    curLineValue = Lines[CurrentFileLine];
+                    
+                    // save the current cursor position
+                    (int cursorLeft, int cursorTopBefore) = Console.GetCursorPosition();
+                        
+                    // Remove the text after the cursor position
+                    Lines[CurrentFileLine] = curLineValue.Remove(CursorPosLeft + 1);
+
+                    // Insert a new line after the current line with the remaining text after the cursor position
+                    Lines.Insert(CurrentFileLine + 1, curLineValue[CursorPosLeft..]);
+                    
+                    // remove the first character of the inserted text
+                    Lines[CurrentFileLine + 1] = Lines[CurrentFileLine + 1].Remove(0, 1);
+                    
+                    // set the cursor back to where it was before
+                    Console.SetCursorPosition(cursorLeft, cursorTopBefore);
+                    
+                }
+                // Move the cursor to the right by one but check if the cursor is at the end of the line first
+                if (CursorPosLeft == Console.WindowWidth -2)
+                {
+                    // Check if the current line is the last line of the file
+                    if (CurrentFileLine == Lines.Count - 1)
+                    {
+                        Lines.Insert(CurrentFileLine + 1, "");
+                        // Console.SetCursorPosition(CursorPosLeft = 0, CursorPosTop++);
+                        MoveVertical(1);
+                    }
+                    // if not Move the cursor to the beginning of the next line
+                    else
+                    {
+                        MoveVertical(1);
+                        CursorPosLeft = 0;
+                    }
+                }
+                else
+                {
+                    Console.SetCursorPosition(CursorPosLeft++, CursorPosTop);
+                }
+
             }
         }
     }
