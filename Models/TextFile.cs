@@ -15,8 +15,52 @@ public class TextFile
     private int CurrentFileLine { get; set; } = 0; // Represents the current line in the opened file
     private int CurrentBufferLine { get; set; } = 0; // Represents the current buffer line (the amount of lines that can be displayed on the console)
     private int BufferHeight { get; set; } = Console.BufferHeight; // Represents the last buffer line (the amount of lines that can be displayed on the console)
-    private int CursorPosLeft { get; set; } = 0; // Represents the current horizontal cursor position in the console
-    private int CursorPosTop { get; set; } = 3; // Represents the current vertical cursor position in the console
+    private int CursorPosLeft {
+        get
+        {
+            return _cursorPosLeft;
+        }
+        set
+        {
+            if ((value >= 0) && (value < Console.WindowWidth - 1))
+            {
+                _cursorPosLeft = value;
+            } else if (value < 0)
+            {
+                _cursorPosLeft = 0;
+            } else if (value > Console.WindowWidth - 1)
+            {
+                _cursorPosLeft = Console.WindowWidth - 1;
+            }
+        }
+    } 
+
+    private int _cursorPosLeft = 0; // Represents the current horizontal cursor position in the console
+
+    private int CursorPosTop
+    {
+        get
+        {
+            return _cursorPosTop;
+        }
+        set
+        {
+            if ((value >= 3) && (value < Console.WindowHeight - 4))
+            {
+                _cursorPosTop = value;
+            }
+            else if (value < 3)
+            {
+                _cursorPosTop = 3;
+            }
+            else if (value > Console.WindowHeight - 4)
+            {
+                _cursorPosTop = Console.WindowHeight - 4;
+            }
+        }
+    }
+
+    private int _cursorPosTop = 3; // Represents the current vertical cursor position in the console
 
     public TextFile(string path)
     {
@@ -347,10 +391,10 @@ public class TextFile
         if (direction == 1)
         {
             // Check if the cursor is at the end of the line
-            if (CursorPosLeft == Lines[CurrentFileLine].Length)
+            if (CursorPosLeft == (Lines[CurrentFileLine].Length > Console.WindowWidth - 1 ? Console.WindowWidth - 1 : Lines[CurrentFileLine].Length))
             {
                 // Check if the current line is the last line of the file
-                if (CurrentFileLine == Lines.Count - 1)
+                if (IsBottomLine(CurrentFileLine))
                 {
                     return;
                 }
@@ -480,7 +524,7 @@ public class TextFile
         {
             if (Lines[i].Length > Console.WindowWidth)
             {
-                Console.WriteLine($"{Lines[i][..Console.WindowWidth]}");
+                Console.WriteLine($"{Lines[i][..(Console.WindowWidth - 1)]}");
             }
             else
             {
@@ -509,9 +553,12 @@ public class TextFile
                 Console.ResetColor();
             }
         }
-
-    // Move the cursor back to the original position
-    Console.SetCursorPosition(cursorPos.Left, cursorPos.Top);
+        // Move the cursor back to the original position
+        if (cursorPos.Left > Console.WindowWidth - 1)
+        {
+            cursorPos.Left = Console.WindowWidth - 1;
+        }
+        Console.SetCursorPosition(cursorPos.Left, cursorPos.Top);
     }
 
     public void Save()
