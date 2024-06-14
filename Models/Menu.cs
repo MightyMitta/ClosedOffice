@@ -13,10 +13,10 @@ public class Menu
     {
         Console.CursorVisible = false;
         // Set the index to the first option
-        int index = 0;
+        Helper.ExitMenu = 0;
 
         // Write the menu in the console
-        WriteMenu(options[index]);
+        WriteMenu(options[Helper.ExitMenu]);
 
         // Store the pressed key info
         ConsoleKeyInfo keyinfo;
@@ -27,38 +27,46 @@ public class Menu
             // Handle each key input (down arrow will write the menu again with a different selected item)
             if (keyinfo.Key == ConsoleKey.DownArrow)
             {
-                if (index + 1 < options.Count)
+                if (Helper.ExitMenu + 1 < options.Count)
                 {
-                    index++;
-                    WriteMenu(options[index]);
+                    Helper.ExitMenu++;
+                    WriteMenu(options[Helper.ExitMenu]);
                 }
             }
             if (keyinfo.Key == ConsoleKey.UpArrow)
             {
-                if (index - 1 >= 0)
+                if (Helper.ExitMenu - 1 >= 0)
                 {
-                    index--;
-                    WriteMenu(options[index]);
+                    Helper.ExitMenu--;
+                    WriteMenu(options[Helper.ExitMenu]);
                 }
             }
             
             // Invoke the selected option when the enter key is pressed
             if (keyinfo.Key == ConsoleKey.Enter)
             {
-                options[index].Selected.Invoke();
-                index = 0;
+                options[Helper.ExitMenu].Selected.Invoke();
             }
         }
         // TODO: Change this to a more appropriate condition
-        while (index != -1);
+        while (Helper.ExitMenu != -1);
     }
 
     public void WriteMenu(Option selectedOption)
     {
-        Console.Clear();
+        int startRow = Console.WindowHeight - options.Count - 4;
+
+        for (int i = 0; i < options.Count + 2; i++)
+        {
+            Console.SetCursorPosition(0, startRow + i);
+            Console.Write(new string(' ', Console.WindowWidth));
+        }
+
+        Console.SetCursorPosition(0, startRow);
+        Console.WriteLine(new string('-', Console.WindowWidth));
         Console.ForegroundColor = ConsoleColor.Black;
         Console.BackgroundColor = ConsoleColor.Gray;
-        Console.WriteLine("Navigate options using arrow up/down, select option by pressing Enter");
+        Console.WriteLine("Navigate options using arrow up/down, select option by pressing Enter                                                   ");
         Console.ForegroundColor = ConsoleColor.Gray;
         Console.BackgroundColor = ConsoleColor.Black;
 
@@ -75,5 +83,6 @@ public class Menu
 
             Console.WriteLine(option.Name);
         }
+        Console.WriteLine(new string('-', Console.WindowWidth));
     }
 }
