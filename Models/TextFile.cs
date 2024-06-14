@@ -15,7 +15,8 @@ public class TextFile
     private int CurrentFileLine { get; set; } = 0; // Represents the current line in the opened file
     private int CurrentBufferLine { get; set; } = 0; // Represents the current buffer line (the amount of lines that can be displayed on the console)
     private int BufferHeight { get; set; } = Console.BufferHeight; // Represents the last buffer line (the amount of lines that can be displayed on the console)
-    private int CursorPosLeft {
+    private int CursorPosLeft 
+    {
         get
         {
             return _cursorPosLeft;
