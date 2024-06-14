@@ -298,10 +298,14 @@ public class TextFile
 
                     if (!File.Exists(importPath))
                     {
-                        Console.WriteLine("File does not exist");
-                        Console.WriteLine("Press any key to continue");
+                        Console.SetCursorPosition(0, Console.WindowHeight - 3);
+                        Console.WriteLine(new string(' ', Console.WindowWidth));
+                        Console.SetCursorPosition(0, Console.WindowHeight - 3);
+                        Console.WriteLine("File does not exist, press any key to continue");
+                        Console.CursorVisible = false;
                         Console.ReadKey(true);
-                        continue;
+                        Console.CursorVisible = true;
+                        return;
                     }
 
                     string[] importedLines = File.ReadAllLines(importPath);
@@ -790,8 +794,26 @@ public class TextFile
         {
             path = "./Testfile.txt";
         }
+        
         // TODO: if the user presses escape key, continue with the current file
-
+        // if (path == "\u001b")
+        // {
+        //     Console.ReadKey(true);
+        //     return;
+        // }
+        
+        //if path does not exist, continue with the current file
+        if (!File.Exists(path))
+        {
+            Console.SetCursorPosition(0, Console.WindowHeight - 3);
+            Console.WriteLine(new string(' ', Console.WindowWidth));
+            Console.SetCursorPosition(0, Console.WindowHeight - 3);
+            Console.WriteLine("File does not exist, press any key to continue");
+            Console.CursorVisible = false;
+            Console.ReadKey(true);
+            Console.CursorVisible = true;
+            return;
+        }
 
         // TODO: Replace with actual file path
         TextFile textFile = new(path);
