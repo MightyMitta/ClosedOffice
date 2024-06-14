@@ -102,7 +102,15 @@ public class TextFile
         {
             Console.Clear();
             BufferHeight = Console.WindowHeight - 7;
-            Console.Title = $"File: {Name} - Line: {CurrentFileLine + 1}";
+            // if currently opened file is not a .tmp file
+            if (!Path.EndsWith(".tmp"))
+            {
+                Console.Title = $"File: {Name} - Line: {CurrentFileLine + 1}";
+            }
+            else
+            {
+                Console.Title = "ClosedOffice";
+            }
             PrintBuffer(CurrentFileLine - CurrentBufferLine, BufferHeight, (CursorPosLeft, CursorPosTop));
             ConsoleKeyInfo typedChar;
             try
@@ -583,7 +591,7 @@ public class TextFile
             fileWordCount += line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length;
         }
         
-        Console.WriteLine($"{fileWordCount} words in a total of {Lines.Count} lines. Curline: {CurrentFileLine + 1} CurBufferLine: {CurrentBufferLine + 1}");
+        Console.WriteLine($"{fileWordCount} words in a total of {Lines.Count} lines.");
 
         // Print the bottom border
         //Console.SetCursorPosition(0, Console.WindowHeight - 1);
@@ -773,11 +781,17 @@ public class TextFile
         Console.ResetColor();
         Console.Write(": ");
 
+        
+        // Get the path of the file
         string path = Console.ReadLine();
+        
+        // If the path is empty, use the TestFile
         if (string.IsNullOrEmpty(path) || string.IsNullOrWhiteSpace(path))
         {
             path = "./Testfile.txt";
         }
+        // TODO: if the user presses escape key, continue with the current file
+
 
         // TODO: Replace with actual file path
         TextFile textFile = new(path);
