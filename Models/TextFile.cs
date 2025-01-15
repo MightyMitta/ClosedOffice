@@ -1,9 +1,29 @@
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace ClosedOffice.Models;
+
 public class TextFile
 {
+    public void AsyncSave()
+    {
+        ThreadPool.QueueUserWorkItem(_ =>
+        {
+            try
+            {
+                Overwrite();  // Bestandsopslag gebeurt nu op de achtergrond
+                Console.SetCursorPosition(0, Console.WindowHeight - 3);
+                Console.WriteLine("File saved in the background.");
+            }
+            catch (Exception e)
+            {
+                Console.SetCursorPosition(0, Console.WindowHeight - 3);
+                Console.WriteLine($"Error during async save: {e.Message}");
+            }
+        });
+    }
+    
     public string Name { get; set; }
     public string Path { get; set; }
     private List<string> Lines { get; set; } = [];
@@ -665,16 +685,16 @@ public class TextFile
 
     public void Save()
     {
-        Console.SetCursorPosition(left: 0 , top: Console.WindowHeight - 3);
-        Console.WriteLine("Would you like to overwrite or save as new file?"); // Ask the user if they want to overwrite the file or save as a new file
+        Console.SetCursorPosition(0, Console.WindowHeight - 3);
+        Console.WriteLine("Would you like to overwrite or save as new file?");
 
-        List<Option> options = new List<Option> // Create a list of options
+        List<Option> options = new List<Option>
         {
-            new("Save as new file", () => SaveAs() ),
-            new("Continue editing", () => Open() )
+            new("Save as new file", () => SaveAs()),
+            new("Continue editing", () => Open()),
+            new("Async Save", () => AsyncSave())  // Nieuwe optie toegevoegd
         };
 
-        // Add the Overwrite option only if the file is not a .tmp file
         if (!Path.EndsWith(".tmp"))
         {
             options.Insert(0, new Option("Overwrite", () => Overwrite()));
@@ -742,7 +762,7 @@ public class TextFile
         }
         
         // Combine the current directory with the file name
-        Path = System.IO.Path.Combine(Environment.CurrentDirectory, Name + ".txt"); // Combine the current directory with the file name
+        Path = System.IO.Path.Combine(Config.Instance.DefaultPath, Name + ".txt");
 
         // Try to save the file
         try
