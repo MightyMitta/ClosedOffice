@@ -1,4 +1,4 @@
-﻿namespace ClosedOffice.Models;
+namespace ClosedOffice.Models;
 public class Option
 {
     public string Name { get; }
